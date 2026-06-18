@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ID Lookup Tool</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f6f8;
+    padding: 30px;
+    text-align: center;
+}
+.container { max-width: 900px; margin: auto; }
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+h2 { color:#0078d4; }
+input {
+    padding:10px;
+    width:300px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+button {
+    padding:10px 14px;
+    background:#0078d4;
+    color:white;
+    border:none;
+    border-radius:6px;
+    margin-left:8px;
+    cursor:pointer;
+}
+.result-card {
+    background:#fafafa;
+    border:1px solid #ddd;
+    padding:12px;
+    border-radius:8px;
+    margin-top:10px;
+    text-align:left;
+}
+.label { font-weight:bold; }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+<div class="card">
+
+<h2>ID Lookup Tool</h2>
+
+<input id="input" placeholder="Enter ID or paste full text">
+<button onclick="search()">Search</button>
+
+<div id="result"></div>
+
+</div>
+</div>
+
+<!-- ✅ LINK YOUR DATA FILE -->
+<script src="data.js"></script>
+
+<script>
+
+// ✅ Extract ID
+function getID(value){
+    let match = value.toString().match(/\d+/);
+    return match ? match[0] : "";
+}
+
+// ✅ Search
+function search(){
+    let input = document.getElementById("input").value.trim();
+    let id = getID(input);
+    let resultDiv = document.getElementById("result");
+
+    resultDiv.innerHTML = "";
+
+    if(!id){
+        resultDiv.innerHTML = "Enter valid ID";
+        return;
+    }
+
+    let results = data.filter(d =>
+        getID(d.l1)==id ||
+        getID(d.l2)==id ||
+        getID(d.l3)==id ||
+        getID(d.l4)==id
+    );
+
+    if(results.length===0){
+        resultDiv.innerHTML = "No match found";
+        return;
+    }
+
+    results.forEach((r,i)=>{
+        resultDiv.innerHTML += `
+        <div class="result-card">
+            <div><b>Match ${i+1}</b></div>
+            <div><span class="label">L1:</span> ${r.l1||"-"}</div>
+            <div><span class="label">L2:</span> ${r.l2||"-"}</div>
+            <div><span class="label">L3:</span> ${r.l3||"-"}</div>
+            <div><span class="label">L4:</span> ${r.l4||"-"}</div>
+        </div>`;
+    });
+}
+
+</script>
+
+</body>
+</html>
