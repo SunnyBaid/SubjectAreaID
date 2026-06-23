@@ -422,6 +422,43 @@
   </div>
 
   <div id="toast" class="toast"></div>
+<!-- ✅ ===== TIME CALCULATOR START ===== -->
+<div class="container" style="margin-top:20px;">
+  <div class="card" style="max-width:600px;">
+
+    <h2>Time Calculator</h2>
+
+    <!-- Row 1 -->
+    <div style="display:flex; gap:10px; align-items:center;">
+      <input id="minInput" type="number" placeholder="Minutes (e.g. 50)" style="flex:2;">
+      <button class="btn primary" style="width:auto; flex-shrink:0;" onclick="convertToHHMM()">Convert</button>
+    </div>
+
+    <br>
+
+    <!-- Row 2 -->
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input id="hourInput" type="number" placeholder="HH" style="flex:1 1 120px; min-width:0;">
+      <input id="minPartInput" type="number" placeholder="MM" style="flex:1 1 120px; min-width:0;">
+      <button class="btn primary" style="width:auto; flex-shrink:0;" onclick="convertToMin()">Convert</button>
+    </div>
+
+    <!-- ✅ Result label -->
+    <div style="margin-top:15px; font-weight:bold; color:var(--subtext);">
+      Result
+    </div>
+
+    <!-- ✅ Result box -->
+    <div id="timeResult" style="
+      margin-top:8px;
+      padding:14px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      background:var(--card);
+    "></div>
+
+  </div>
+</div>
 
   <script src="data.js"></script>
 
@@ -703,6 +740,56 @@
     loadTheme();
     renderRecentSearches();
     buildIdList();
+// ✅ ===== TIME CALCULATOR =====
+
+// Round UP (your requirement)
+function roundUpTwo(num){
+  return (Math.ceil(num * 100) / 100).toFixed(2);
+}
+
+// Minutes → HH:MM
+function convertToHHMM(){
+  let min = parseFloat(document.getElementById("minInput").value);
+  let result = document.getElementById("timeResult");
+
+  if(isNaN(min)){
+    result.innerHTML = "Enter valid minutes";
+    return;
+  }
+
+  let h = Math.floor(min / 60);
+  let m = min % 60;
+
+  let hhmm = String(h).padStart(2,'0') + ":" + String(m).padStart(2,'0');
+
+  let exact = min / 60;
+  let rounded = roundUpTwo(exact);
+
+  result.innerHTML = `
+    <b>HH:MM:</b> ${hhmm}<br>
+    <b>Decimal Exact:</b> ${exact}<br>
+    <b>Decimal Rounded:</b> ${rounded}
+  `;
+}
+
+// HH:MM → Minutes
+function convertToMin(){
+  let h = parseFloat(document.getElementById("hourInput").value);
+  let m = parseFloat(document.getElementById("minPartInput").value);
+  let result = document.getElementById("timeResult");
+
+  if(isNaN(h) || isNaN(m)){
+    result.innerHTML = "Enter valid HH & MM";
+    return;
+  }
+
+  let total = (h * 60) + m;
+
+  result.innerHTML = `
+    <b>Minutes:</b> ${total}
+  `;
+}
+
   </script>
 </body>
 </html>
