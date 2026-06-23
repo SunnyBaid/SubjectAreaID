@@ -1,259 +1,708 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ID Lookup Tool</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ID Lookup Tool</title>
 
-<style>
-:root {
-  --bg: #f4f6f8;
-  --card: #ffffff;
-  --text: #1f1f1f;
-  --border: #dddddd;
-  --primary: #0078d4;
-}
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #1f1f1f;
+      --subtext: #666666;
+      --border: #dddddd;
+      --input-bg: #ffffff;
+      --primary: #0078d4;
+      --primary-hover: #005fa8;
+      --secondary-bg: #f2f2f2;
+      --secondary-text: #222222;
+      --copy-bg: #ffffff;
+      --copy-border: #d0d0d0;
+      --highlight: #fff3a3;
+      --shadow: 0 2px 8px rgba(0,0,0,0.05);
+      --suggestion-hover: #f1f7fd;
+      --toast-bg: #1f7a1f;
+      --toast-text: #ffffff;
+    }
 
-body.dark {
-  --bg: #1e1e1e;
-  --card: #2b2b2b;
-  --text: #f5f5f5;
-  --border: #444444;
-}
+    body.dark {
+      --bg: #1e1e1e;
+      --card: #2b2b2b;
+      --text: #f5f5f5;
+      --subtext: #bdbdbd;
+      --border: #444444;
+      --input-bg: #333333;
+      --primary: #4ea1ff;
+      --primary-hover: #2f8df7;
+      --secondary-bg: #3a3a3a;
+      --secondary-text: #f5f5f5;
+      --copy-bg: #383838;
+      --copy-border: #555555;
+      --highlight: #ffe36a;
+      --shadow: 0 2px 10px rgba(0,0,0,0.25);
+      --suggestion-hover: #383f46;
+      --toast-bg: #2d9b2d;
+      --toast-text: #ffffff;
+    }
 
-body {
-  margin:0;
-  padding:20px;
-  font-family:Arial;
-  background:var(--bg);
-  color:var(--text);
-}
+    * {
+      box-sizing: border-box;
+    }
 
-.container {
-  max-width:900px;
-  margin:auto;
-}
+    body {
+      margin: 0;
+      padding: 30px 16px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.25s ease, color 0.25s ease;
+    }
 
-.card {
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:20px;
-  margin-bottom:20px;
-}
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
 
-.top-bar {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
 
-h2 {
-  color:var(--primary);
-}
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
 
-.mode-toggle {
-  cursor:pointer;
-  padding:8px 10px;
-  border-radius:6px;
-  background:var(--primary);
-  color:#fff;
-  border:none;
-}
+    h2 {
+      margin: 0;
+      color: var(--primary);
+      font-size: 28px;
+    }
 
-input {
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  margin-top:10px;
-}
+    .mode-toggle {
+      border: 1px solid var(--border);
+      background: var(--secondary-bg);
+      color: var(--secondary-text);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.2s ease;
+    }
 
-.btn {
-  margin-top:10px;
-  padding:10px;
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  width:100%;
-}
+    .mode-toggle:hover {
+      transform: translateY(-1px);
+    }
 
-.row {
-  display:flex;
-  justify-content:space-between;
-  margin:6px 0;
-}
+    .subtitle {
+      margin: 0 0 18px;
+      color: var(--subtext);
+      font-size: 14px;
+    }
 
-.result-card {
-  border:1px solid var(--border);
-  padding:10px;
-  border-radius:8px;
-  margin-top:10px;
-}
+    .search-area {
+      position: relative;
+    }
 
-.split {
-  display:flex;
-  gap:10px;
-}
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
-#timeResult {
-  margin-top:10px;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-}
-</style>
+    input {
+      flex: 1;
+      min-width: 280px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--text);
+      outline: none;
+      transition: 0.2s ease;
+    }
 
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.12);
+    }
+
+    .btn {
+      padding: 12px 14px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn.primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn.secondary {
+      background: var(--secondary-bg);
+      color: var(--secondary-text);
+      border: 1px solid var(--border);
+    }
+
+    .btn.secondary:hover {
+      opacity: 0.95;
+    }
+
+    .helper {
+      margin: 10px 0 14px;
+      font-size: 13px;
+      color: var(--subtext);
+    }
+
+    .suggestions {
+      display: none;
+      position: absolute;
+      top: 52px;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      z-index: 10;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .suggestion-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover {
+      background: var(--suggestion-hover);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 12px 0 8px;
+    }
+
+    .recent-wrap {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .recent-label {
+      font-size: 13px;
+      color: var(--subtext);
+      font-weight: bold;
+    }
+
+    .recent-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--secondary-bg);
+      color: var(--secondary-text);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .recent-chip:hover {
+      opacity: 0.9;
+    }
+
+    .status {
+      min-height: 18px;
+      font-size: 13px;
+      color: var(--subtext);
+    }
+
+    #result {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .match-title {
+      margin-bottom: 12px;
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 15px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .left {
+      flex: 1;
+      min-width: 0;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    .badge {
+      display: inline-block;
+      min-width: 34px;
+      padding: 3px 8px;
+      margin-right: 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .badge.l1 { background: #0078d4; }
+    .badge.l2 { background: #2e8b57; }
+    .badge.l3 { background: #d97706; }
+    .badge.l4 { background: #7c3aed; }
+
+    .copy-btn {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--copy-border);
+      background: var(--copy-bg);
+      color: var(--text);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      opacity: 0.9;
+    }
+
+    .copy-btn.copied {
+      background: #228b22;
+      color: #ffffff;
+      border-color: #228b22;
+    }
+
+    .highlight {
+      background: var(--highlight);
+      color: #000000;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .empty-box {
+      text-align: center;
+      padding: 18px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      color: var(--subtext);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: var(--toast-bg);
+      color: var(--toast-text);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      h2 {
+        font-size: 24px;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .copy-btn {
+        width: fit-content;
+      }
+
+      .meta-row {
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container">
+    <div class="card">
+      <div class="top-bar">
+        <h2>ID Lookup Tool</h2>
+        <button id="modeToggle" class="mode-toggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+      </div>
 
-<div class="container">
+      <p class="subtitle">
+        Enter an ID from any section and get the hierarchy based on the matched level.
+      </p>
 
-<!-- ✅ ID TOOL -->
-<div class="card">
+      <div class="search-area">
+        <div class="controls">
+          <input id="input" type="text" placeholder="Enter ID or paste full text" autocomplete="off" />
+          <button class="btn primary" onclick="search()">Search</button>
+          <button class="btn secondary" onclick="clearSearch()">Clear</button>
+        </div>
+        <div id="suggestions" class="suggestions"></div>
+      </div>
 
-<div class="top-bar">
-<h2>ID Lookup Tool</h2>
-<button class="mode-toggle" onclick="toggleTheme()">🌙</button>
-</div>
+      <div class="helper">
+        Examples: <b>20010060</b> or <b>20010060- Azure AD – Developer</b>
+      </div>
 
-<input id="input" placeholder="Enter ID">
-<button class="btn" onclick="search()">Search</button>
+      <div class="meta-row">
+        <div class="recent-wrap">
+          <span class="recent-label">Recent:</span>
+          <div id="recentSearches" class="recent-wrap"></div>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
 
-<div id="result"></div>
+      <div id="result"></div>
+    </div>
+  </div>
 
-</div>
+  <div id="toast" class="toast"></div>
 
-<!-- ✅ TIME CALCULATOR -->
-<div class="card">
+  <script src="data.js"></script>
 
-<h2>Time Calculator</h2>
+  <script>
+    let allIds = [];
+    let recentSearches = JSON.parse(localStorage.getItem("recentSearches") || "[]");
+    let currentSuggestions = [];
 
-<input id="minInput" type="number" placeholder="Minutes (e.g. 50)">
-<button class="btn" onclick="convertToHHMM()">Convert</button>
+    function getID(value) {
+      if (!value) return "";
+      const match = value.toString().match(/\d+/);
+      return match ? match[0] : "";
+    }
 
-<br><br>
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
-<div class="split">
-  <input id="hourInput" type="number" placeholder="HH">
-  <input id="minPartInput" type="number" placeholder="MM">
-</div>
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
 
-<button class="btn" onclick="convertToMin()">Convert</button>
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1500);
+    }
 
-<div id="timeResult"></div>
+    function copyID(id, btn) {
+      if (!id) return;
 
-</div>
+      navigator.clipboard.writeText(id)
+        .then(() => {
+          if (btn) {
+            const original = btn.textContent;
+            btn.textContent = "Copied";
+            btn.classList.add("copied");
 
-</div>
+            setTimeout(() => {
+              btn.textContent = original;
+              btn.classList.remove("copied");
+            }, 1000);
+          }
+          showToast("Copied: " + id);
+        })
+        .catch(() => {
+          showToast("Copy failed");
+        });
+    }
 
-<script src="data.js"></script>
+    function highlightID(text, searchedID) {
+      const idInText = getID(text);
+      if (!idInText || idInText !== searchedID) {
+        return escapeHtml(text);
+      }
 
-<script>
+      const safeText = escapeHtml(text);
+      return safeText.replace(
+        idInText,
+        `<span class="highlight">${idInText}</span>`
+      );
+    }
 
-// ✅ DARK MODE
-function toggleTheme(){
-  document.body.classList.toggle("dark");
-}
+    function getBadgeClass(level) {
+      return level.toLowerCase();
+    }
 
-// ✅ ID GET
-function getID(value){
-  let match=value.toString().match(/\d+/);
-  return match?match[0]:"";
-}
+    function buildRow(levelLabel, value, searchedID) {
+      const idOnly = getID(value);
 
-// ✅ SEARCH
-function search(){
+      return `
+        <div class="row">
+          <div class="left">
+            <span class="badge ${getBadgeClass(levelLabel)}">${levelLabel.toUpperCase()}</span>
+            ${highlightID(value, searchedID)}
+          </div>
+          <button class="copy-btn" onclick="copyID('${idOnly}', this)">Copy</button>
+        </div>
+      `;
+    }
 
-  let id=getID(document.getElementById("input").value);
-  let resultDiv=document.getElementById("result");
+    function saveRecentSearch(id) {
+      if (!id) return;
+      recentSearches = recentSearches.filter(x => x !== id);
+      recentSearches.unshift(id);
+      recentSearches = recentSearches.slice(0, 5);
+      localStorage.setItem("recentSearches", JSON.stringify(recentSearches));
+      renderRecentSearches();
+    }
 
-  resultDiv.innerHTML="";
+    function renderRecentSearches() {
+      const wrap = document.getElementById("recentSearches");
+      wrap.innerHTML = "";
 
-  let results=data.filter(d =>
-    getID(d.l1)==id ||
-    getID(d.l2)==id ||
-    getID(d.l3)==id ||
-    getID(d.l4)==id
-  );
+      if (recentSearches.length === 0) {
+        wrap.innerHTML = `<span class="status">No recent searches</span>`;
+        return;
+      }
 
-  results.forEach(r=>{
-    resultDiv.innerHTML+=`
-      <div class="result-card">
-        <div>L1: ${r.l1}</div>
-        <div>L2: ${r.l2}</div>
-        <div>L3: ${r.l3}</div>
-        <div>L4: ${r.l4}</div>
-      </div>`;
-  });
-}
+      recentSearches.forEach(id => {
+        const btn = document.createElement("button");
+        btn.className = "recent-chip";
+        btn.textContent = id;
+        btn.onclick = () => {
+          document.getElementById("input").value = id;
+          search();
+        };
+        wrap.appendChild(btn);
+      });
+    }
 
+    function clearSearch() {
+      document.getElementById("input").value = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("status").textContent = "";
+      hideSuggestions();
+      document.getElementById("input").focus();
+    }
 
+    function search() {
+      const input = document.getElementById("input").value.trim();
+      const id = getID(input);
+      const resultDiv = document.getElementById("result");
+      const status = document.getElementById("status");
 
+      resultDiv.innerHTML = "";
+      status.textContent = "";
+      hideSuggestions();
 
+      if (!id) {
+        resultDiv.innerHTML = `<div class="empty-box">Please enter a valid ID.</div>`;
+        return;
+      }
 
+      const results = data.filter(d =>
+        getID(d.l1) === id ||
+        getID(d.l2) === id ||
+        getID(d.l3) === id ||
+        getID(d.l4) === id
+      );
 
-// ✅ ✅ ROUND UP FUNCTION (FINAL FIX)
-function roundUpTwo(num){
-  return (Math.ceil(num * 100) / 100).toFixed(2);
-}
+      if (results.length === 0) {
+        resultDiv.innerHTML = `<div class="empty-box">No match found.</div>`;
+        return;
+      }
 
-// ✅ MIN → HH:MM
-function convertToHHMM(){
+      saveRecentSearch(id);
+      status.textContent = `${results.length} match${results.length > 1 ? "es" : ""} found`;
 
-  let min=parseFloat(document.getElementById("minInput").value);
-  let result=document.getElementById("timeResult");
+      results.forEach((r, i) => {
+        let html = `<div class="result-card"><div class="match-title">Match ${i + 1}</div>`;
 
-  if(isNaN(min)){
-    result.innerHTML="Enter valid minutes";
-    return;
-  }
+        if (getID(r.l1) === id) {
+          html += buildRow("l1", r.l1, id);
+        } else if (getID(r.l2) === id) {
+          html += buildRow("l1", r.l1, id);
+          html += buildRow("l2", r.l2, id);
+        } else if (getID(r.l3) === id) {
+          html += buildRow("l1", r.l1, id);
+          html += buildRow("l2", r.l2, id);
+          html += buildRow("l3", r.l3, id);
+        } else if (getID(r.l4) === id) {
+          html += buildRow("l1", r.l1, id);
+          html += buildRow("l2", r.l2, id);
+          html += buildRow("l3", r.l3, id);
+          html += buildRow("l4", r.l4, id);
+        }
 
-  let h=Math.floor(min/60);
-  let m=min%60;
+        html += `</div>`;
+        resultDiv.innerHTML += html;
+      });
+    }
 
-  let hhmm=String(h).padStart(2,'0')+":"+String(m).padStart(2,'0');
+    function buildIdList() {
+      const set = new Set();
 
-  let exact=min/60;
-  let rounded=roundUpTwo(exact);
+      data.forEach(item => {
+        [item.l1, item.l2, item.l3, item.l4].forEach(value => {
+          const id = getID(value);
+          if (id) set.add(id);
+        });
+      });
 
-  result.innerHTML=`
-    <b>HH:MM → ${hhmm}</b><br>
-    Exact → ${exact}<br>
-    Rounded → <b>${rounded}</b>
-  `;
-}
+      allIds = [...set].sort();
+    }
 
+    function showSuggestions(items) {
+      const box = document.getElementById("suggestions");
 
-// ✅ HH+MM → MIN
-function convertToMin(){
+      if (!items.length) {
+        hideSuggestions();
+        return;
+      }
 
-  let h=parseFloat(document.getElementById("hourInput").value);
-  let m=parseFloat(document.getElementById("minPartInput").value);
-  let result=document.getElementById("timeResult");
+      box.innerHTML = items.map(id => `
+        <div class="suggestion-item" onclick="pickSuggestion('${id}')">${id}</div>
+      `).join("");
 
-  if(isNaN(h)||isNaN(m)){
-    result.innerHTML="Enter valid HH & MM";
-    return;
-  }
+      box.style.display = "block";
+      currentSuggestions = items;
+    }
 
-  let total=(h*60)+m;
+    function hideSuggestions() {
+      const box = document.getElementById("suggestions");
+      box.style.display = "none";
+      box.innerHTML = "";
+      currentSuggestions = [];
+    }
 
-  let exact=total/60;
-  let rounded=roundUpTwo(exact);
+    function pickSuggestion(id) {
+      document.getElementById("input").value = id;
+      hideSuggestions();
+    }
 
-  result.innerHTML=`
-    <b>Minutes → ${total}</b><br>
-    Exact → ${exact}<br>
-    Rounded → <b>${rounded}</b>
-  `;
-}
+    function updateSuggestions() {
+      const value = document.getElementById("input").value.trim();
 
-</script>
+      if (!value) {
+        hideSuggestions();
+        return;
+      }
 
+      const numeric = getID(value);
+      const query = numeric || value;
+
+      const matches = allIds
+        .filter(id => id.startsWith(query))
+        .slice(0, 8);
+
+      showSuggestions(matches);
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const btn = document.getElementById("modeToggle");
+
+      body.classList.toggle("dark");
+      const isDark = body.classList.contains("dark");
+
+      localStorage.setItem("themeMode", isDark ? "dark" : "light");
+      btn.textContent = isDark ? "☀ Light Mode" : "🌙 Dark Mode";
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem("themeMode");
+      const btn = document.getElementById("modeToggle");
+
+      if (saved === "dark") {
+        document.body.classList.add("dark");
+        btn.textContent = "☀ Light Mode";
+      } else {
+        btn.textContent = "🌙 Dark Mode";
+      }
+    }
+
+    document.getElementById("input").addEventListener("input", updateSuggestions);
+
+    document.getElementById("input").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        search();
+      }
+    });
+
+    document.addEventListener("click", function(event) {
+      const suggestions = document.getElementById("suggestions");
+      const input = document.getElementById("input");
+
+      if (!suggestions.contains(event.target) && event.target !== input) {
+        hideSuggestions();
+      }
+    });
+
+    loadTheme();
+    renderRecentSearches();
+    buildIdList();
+  </script>
 </body>
 </html>
-``
